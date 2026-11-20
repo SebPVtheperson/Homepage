@@ -13,6 +13,11 @@ One EXE, no install. **[Download Homepage.exe](https://github.com/SebPVtheperson
 - Website names and icons are filled in for you
 - Ctrl+click several shortcuts and press Enter to open them all
 - Right-click a group tab and pick **Open all** to open the whole tab
+- Search everything: just start typing, Enter opens the top match
+- Ctrl+Alt+Q shows or hides Homepage from anywhere
+- Lives in the tray; can start with Windows
+- Paste a link or file with Ctrl+V to add it
+- Find broken links, save and restore backups, dark mode (all under the gear)
 - Undo with Ctrl+Z
 
 ## How to use it
@@ -21,6 +26,7 @@ One EXE, no install. **[Download Homepage.exe](https://github.com/SebPVtheperson
 - **Open:** double-click a shortcut.
 - **Rearrange:** click the pencil (or Ctrl+E), then drag shortcuts and groups around.
 - **Move the window:** drag the empty part of the top bar.
+- **Close:** the X hides Homepage to the tray. To quit, right-click the tray icon or use the gear menu.
 
 Everything is saved in a `Homepage.data` folder next to the EXE. Move that folder with the EXE to keep your layout.
 

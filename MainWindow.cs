@@ -14,14 +14,14 @@ using Microsoft.Win32;
 
 namespace Homepage;
 
-public sealed class MainWindow : Window
+public sealed partial class MainWindow : Window
 {
     const string DragFormat = "Homepage.Shortcut.Id";
     const double TileWidth = 88, TileHeight = 88, RowHeight = 36;
-    static readonly Brush Ink = new SolidColorBrush(Color.FromRgb(74, 80, 87));
-    static readonly Brush Line = new SolidColorBrush(Color.FromRgb(224, 227, 231));
-    static readonly Brush Accent = new SolidColorBrush(Color.FromRgb(82, 125, 155));
-    static readonly Brush Paper = new SolidColorBrush(Color.FromRgb(249, 250, 251));
+    static readonly SolidColorBrush Ink = new SolidColorBrush(Color.FromRgb(74, 80, 87));
+    static readonly SolidColorBrush Line = new SolidColorBrush(Color.FromRgb(224, 227, 231));
+    static readonly SolidColorBrush Accent = new SolidColorBrush(Color.FromRgb(82, 125, 155));
+    static readonly SolidColorBrush Paper = new SolidColorBrush(Color.FromRgb(249, 250, 251));
     readonly LayoutStore store;
     readonly IconAssets iconAssets;
     readonly WebsiteMetadataService websiteMetadata;
@@ -119,6 +119,7 @@ public sealed class MainWindow : Window
         root.Children.Add(header);
         viewport.Content = canvas; Grid.SetRow(viewport, 1); root.Children.Add(viewport); Content = root;
         Grid.SetRow(dragOverlay, 1); root.Children.Add(dragOverlay); dragOverlay.Children.Add(landingMarker);
+        BuildExtras(root, toolbar);
         root.AddHandler(DragDrop.DragOverEvent, new DragEventHandler(PreviewShortcutDrag), true);
         root.AddHandler(DragDrop.DragLeaveEvent, new DragEventHandler((_, e) =>
         {
@@ -158,7 +159,7 @@ public sealed class MainWindow : Window
             if (!testMode) foreach (var item in layout.AllItems().Where(i => LayoutStore.IsWebsite(i.Target) && (!i.WebsiteMetadataFetched || SharePointMetadata.IsSharePoint(i.Target))).ToArray()) _ = RefreshWebsiteAsync(item);
         };
         Closing += ClosingWindow;
-        Closed += (_, _) => { EndShortcutDrag(); lifetime.Cancel(); this.websiteMetadata.Dispose(); };
+        Closed += (_, _) => { DisposeExtras(); EndShortcutDrag(); lifetime.Cancel(); this.websiteMetadata.Dispose(); };
         Render();
     }
 
@@ -243,6 +244,7 @@ public sealed class MainWindow : Window
     {
         var menu = new ContextMenu { Placement = PlacementMode.Bottom };
         menu.Items.Add(Entry("Import bookmarks…", () => { var dialog = new BookmarkDialog(this); if (dialog.ShowDialog() == true && dialog.SelectedNode is { } node) ImportBookmarks(node); }));
+        AddExtraSettings(menu);
         menu.PlacementTarget = MainWindow.FindDescendants<Button>(this).FirstOrDefault(b => b.Content as string == "⚙"); menu.IsOpen = true;
     }
     public Group? ImportBookmarks(BookmarkNode node)
@@ -446,7 +448,7 @@ public sealed class MainWindow : Window
         editButton.Foreground = editing ? Accent : Ink;
         editButton.ToolTip = editing ? "Finish editing · Escape" : "Edit layout · Ctrl+E";
         snapButton.Foreground = layout.Snap ? Accent : Ink;
-        snapButton.Background = layout.Snap ? new SolidColorBrush(Color.FromRgb(224, 234, 242)) : Brushes.Transparent;
+        snapButton.Background = layout.Snap ? new SolidColorBrush(SnapOn) : Brushes.Transparent;
         snapButton.ToolTip = layout.Snap ? "Grid snapping on · 16 px · Click to turn off" : "Grid snapping off · Click to turn on";
         canvas.Background = layout.Snap ? GridBrush() : Paper;
         foreach (var group in layout.Groups) DrawGroup(group);
@@ -465,7 +467,7 @@ public sealed class MainWindow : Window
     }
     static Brush GridBrush()
     {
-        var drawing = new GeometryDrawing(new SolidColorBrush(Color.FromRgb(215, 220, 226)), null, new EllipseGeometry(new Point(1, 1), .65, .65));
+        var drawing = new GeometryDrawing(new SolidColorBrush(GridDot), null, new EllipseGeometry(new Point(1, 1), .65, .65));
         var brush = new DrawingBrush(drawing) { TileMode = TileMode.Tile, Viewport = new Rect(0, 0, 16, 16), ViewportUnits = BrushMappingMode.Absolute, Stretch = Stretch.None, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top };
         var group = new DrawingGroup(); group.Children.Add(new GeometryDrawing(Paper, null, new RectangleGeometry(new Rect(0, 0, 16, 16)))); group.Children.Add(drawing);
         brush.Drawing = group; return brush;
@@ -481,7 +483,7 @@ public sealed class MainWindow : Window
     static int TabRowCount(Group group) => (group.Tabs.Count > 1 ? 1 : 0) + group.ActivePath().Count(t => t.Children.Count > 0);
     void DrawGroup(Group group)
     {
-        var border = new Border { Width = group.Width, Height = GroupHeight(group), Background = Brushes.White, BorderBrush = Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), AllowDrop = true, Tag = group.Id };
+        var border = new Border { Width = group.Width, Height = GroupHeight(group), Background = Dark ? PanelBrush : Brushes.White, BorderBrush = Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), AllowDrop = true, Tag = group.Id };
         Canvas.SetLeft(border, group.X); Canvas.SetTop(border, group.Y); canvas.Children.Add(border);
         var grid = new Grid(); grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(32) });
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(TabRowCount(group) * 26) }); grid.RowDefinitions.Add(new RowDefinition()); border.Child = grid;
@@ -575,7 +577,7 @@ public sealed class MainWindow : Window
         var factory = new FrameworkElementFactory(typeof(Border)); factory.SetValue(Border.BackgroundProperty, Brushes.Transparent);
         if (glyph is not null)
         {
-            var label = new FrameworkElementFactory(typeof(TextBlock)); label.SetValue(TextBlock.TextProperty, glyph); label.SetValue(TextBlock.FontSizeProperty, 12.0); label.SetValue(TextBlock.ForegroundProperty, Ink); factory.AppendChild(label);
+            var label = new FrameworkElementFactory(typeof(TextBlock)); label.SetValue(TextBlock.TextProperty, glyph); label.SetValue(TextBlock.FontSizeProperty, 12.0); label.SetValue(TextBlock.ForegroundProperty, new SolidColorBrush(Ink.Color)); // A copy: templates lock their brushes, and Ink must stay changeable for dark mode. factory.AppendChild(label);
         }
         thumb.Template = new ControlTemplate(typeof(Thumb)) { VisualTree = factory }; return thumb;
     }
@@ -607,11 +609,11 @@ public sealed class MainWindow : Window
     Border DrawShortcut(Shortcut item, bool row, Group? group = null)
     {
         bool condensed = group?.Condensed == true;
-        var tile = new Border { Width = row ? double.NaN : TileWidth, Height = (row ? RowHeight : TileHeight) * (condensed ? .5 : 1), CornerRadius = new CornerRadius(4), Padding = condensed ? row ? new Thickness(4, 0, 4, 0) : new Thickness(2) : new Thickness(row ? 6 : 4), Background = selected == item.Id || picked.Contains(item.Id) ? new SolidColorBrush(Color.FromRgb(231, 238, 243)) : Brushes.Transparent, BorderBrush = selected == item.Id || picked.Contains(item.Id) ? new SolidColorBrush(Color.FromRgb(190, 209, 222)) : Brushes.Transparent, BorderThickness = new Thickness(1), ToolTip = item.Label + "\n" + item.Target, Cursor = editing ? Cursors.SizeAll : Cursors.Hand, Tag = item.Id, Focusable = true };
+        var tile = new Border { Width = row ? double.NaN : TileWidth, Height = (row ? RowHeight : TileHeight) * (condensed ? .5 : 1), CornerRadius = new CornerRadius(4), Padding = condensed ? row ? new Thickness(4, 0, 4, 0) : new Thickness(2) : new Thickness(row ? 6 : 4), Background = selected == item.Id || picked.Contains(item.Id) ? new SolidColorBrush(SelectFill) : Brushes.Transparent, BorderBrush = selected == item.Id || picked.Contains(item.Id) ? new SolidColorBrush(SelectLine) : Brushes.Transparent, BorderThickness = new Thickness(1), ToolTip = item.Label + "\n" + item.Target, Cursor = editing ? Cursors.SizeAll : Cursors.Hand, Tag = item.Id, Focusable = true };
         var content = new Grid();
         double iconSize = (row ? 24 : 48) * (condensed ? .5 : 1);
         var image = new Image { Source = iconAssets.For(item), Width = iconSize, Height = iconSize, Stretch = Stretch.Uniform, IsHitTestVisible = false };
-        var label = new TextBlock { Text = item.Label, FontSize = condensed ? 10 : 11, Foreground = Ink, TextTrimming = TextTrimming.CharacterEllipsis, IsHitTestVisible = false };
+        var label = new TextBlock { Text = item.Label, FontSize = condensed ? 10 : 11, Foreground = broken.Contains(item.Id) ? Brushes.IndianRed : Ink, TextTrimming = TextTrimming.CharacterEllipsis, IsHitTestVisible = false };
         if (row)
         {
             content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(condensed ? 20 : 30) }); content.ColumnDefinitions.Add(new ColumnDefinition());
@@ -674,8 +676,8 @@ public sealed class MainWindow : Window
         foreach (var border in FindDescendants<Border>(canvas).Where(b => b.Tag is string s && layout.AllItems().Any(i => i.Id == s)))
         {
             bool chosen = (string?)border.Tag == id || picked.Contains((string)border.Tag);
-            border.Background = chosen ? new SolidColorBrush(Color.FromRgb(231, 238, 243)) : Brushes.Transparent;
-            border.BorderBrush = chosen ? new SolidColorBrush(Color.FromRgb(190, 209, 222)) : Brushes.Transparent;
+            border.Background = chosen ? new SolidColorBrush(SelectFill) : Brushes.Transparent;
+            border.BorderBrush = chosen ? new SolidColorBrush(SelectLine) : Brushes.Transparent;
         }
     }
     void BeginPan(object sender, MouseButtonEventArgs e)
@@ -987,6 +989,7 @@ public sealed class MainWindow : Window
     void ClosingWindow(object? sender, CancelEventArgs e)
     {
         scrollSaveTimer.Stop(); if (testMode) return; Persist();
+        if (HideInsteadOfClose(e)) return;
         if (dirty && MessageBox.Show(this, "Your latest changes could not be saved. Close and discard those changes?", "Homepage", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) e.Cancel = true;
     }
     void OpenData()
@@ -1001,6 +1004,7 @@ public sealed class MainWindow : Window
     }
     void KeyPressed(object sender, KeyEventArgs e)
     {
+        if (ExtraKey(e)) return;
         if (e.Key == Key.Escape) { if (picked.Count > 0) { picked.Clear(); Select(selected); } SetEditing(false); e.Handled = true; }
         else if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.None && picked.Count > 0) { OpenPicked(); e.Handled = true; }
         else if (Keyboard.Modifiers == ModifierKeys.Control)

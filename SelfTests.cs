@@ -82,7 +82,7 @@ public static class SelfTests
             demo.Groups.Add(new Group { Label = "Projects", X = 488, Y = 300, Width = 310, Height = 180, Items = [new Shortcut { Label = "Project files", Target = home }, new Shortcut { Label = "Reference", Target = "https://example.com" }] });
             window.SetLayoutForTest(demo); window.UpdateLayout();
             var headerButtons = MainWindow.FindDescendants<Button>(window).Where(b => b.Width == 20 && b.TranslatePoint(new Point(), (UIElement)window.Content).Y < 30).ToArray();
-            Check(headerButtons.Length == 5 && headerButtons.All(b => b.IsVisible && b.IsEnabled && b.TranslatePoint(new Point(), (UIElement)window.Content).X < 175), "Gear and all four toolbar buttons remain visible outside edit mode");
+            Check(headerButtons.Length == 6 && headerButtons.All(b => b.IsVisible && b.IsEnabled && b.TranslatePoint(new Point(), (UIElement)window.Content).X < 175), "Gear, four toolbar buttons and search remain visible outside edit mode");
             var gridButton = headerButtons.First(b => (string)b.Content == "⌗");
             var undoButton = headerButtons.First(b => (string)b.Content == "↶");
             gridButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
