@@ -2,7 +2,7 @@
 
 A simple launcher for Windows. Keep your files, folders, apps and websites on one page and open them with a double-click.
 
-One EXE, no install.
+One EXE, no install. **[Download Homepage.exe](https://github.com/SebPVtheperson/Homepage/releases/latest/download/Homepage.exe)**
 
 ## What it does
 
