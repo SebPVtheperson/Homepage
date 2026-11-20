@@ -1,0 +1,155 @@
+PASS New folder starts with an empty layout
+PASS Contained files use relative paths
+PASS External targets retain absolute paths
+PASS Web addresses remain unchanged
+PASS Only HTTP and HTTPS are classified as websites
+PASS Layout and preferences survive restart
+PASS Atomic save retains previous valid state
+PASS A locked save reports failure instead of discarding changes
+PASS Saving can retry after a file lock is released
+PASS Relative links survive moving the app folder and files together
+PASS Damaged primary recovers the previous save
+PASS Recovery preserves the damaged file
+PASS Recovery does not overwrite a valid backup with corrupt data
+PASS Unreadable primary and backup pause saving
+PASS Paused saving protects unreadable user data
+PASS Explicit recovery allows saving a new layout
+PASS Unknown layout versions are rejected
+PASS Malformed layout collections are rejected
+PASS Undo restores entries without touching linked files
+PASS Non-scrolling groups grow to fit icon contents
+PASS Scrolling groups keep a fixed height
+PASS Gear and all four toolbar buttons remain visible outside edit mode
+PASS Grid button enables snapping without enabling layout editing
+PASS Undo button works outside edit mode
+PASS Windows shell supplies file, folder, and application icons
+PASS Dragging between groups moves rather than duplicates shortcuts
+PASS Reorder adjusts insertion index after removal
+PASS Shortcuts can move from groups onto the canvas
+PASS UI undo restores shortcut membership
+PASS Editing controls use 12 px glyphs and 20 px hit areas
+PASS Group scrolling is independent of the canvas
+PASS Wheel events over scrolling groups stay inside the group
+PASS Wheel events over non-scrolling groups move the canvas
+PASS Groups snap during dragging rather than only on release
+PASS Small drag deltas accumulate correctly with snapping enabled
+PASS Group movement gestures snap to the configured grid
+PASS Groups snap during resizing rather than only on release
+PASS Resize gestures preserve minimum usable group dimensions
+PASS With snapping off, canvas shortcuts retain exact free placement
+PASS With snapping on, dropped shortcuts align to the 16 px grid
+PASS Declared SVG favicons convert to portable PNG assets
+PASS PNG-backed ICO favicons are supported
+PASS SVG favicon conversion excludes external images and scripts
+PASS Page titles decode entities and normalize whitespace
+PASS Favicon discovery honors base URLs and ignores scripts and comments
+PASS Different links on one website receive their own page titles
+PASS Adding a second link on the same host does not download its favicon again
+PASS Concurrent links and different hosts reuse a shared CDN favicon download
+PASS Repeated links and fragment variants reuse cached titles and icons
+PASS Refreshing a page title retains the downloaded favicon
+PASS Identical favicons occupy one cached file
+PASS Page titles and favicons remain available offline after restart
+PASS New links after restart fetch only the page, reusing the site's saved icon
+PASS Invalid declared favicon data falls back to the site's root ICO
+PASS Relative favicons resolve against the final redirected page URL
+PASS Embedded favicon data URIs are supported
+PASS Unavailable websites return a usable fallback without throwing
+PASS An icon timeout preserves a successfully fetched page title
+PASS Authenticated SharePoint links get their site/library title and official SharePoint logo
+PASS SharePoint fallback works without accessing a browser session or downloading a sign-in page
+PASS Old cached Microsoft sign-in icons are replaced by the SharePoint logo
+PASS Additional SharePoint links reuse the same cached logo without downloading it again
+PASS SharePoint names handle teams URLs, encoded spaces, and acronyms
+PASS SharePoint fallback applies only to actual SharePoint tenant hosts
+PASS Website tiles automatically adopt fetched titles and favicons
+PASS Website refresh preserves user-renamed shortcut labels
+PASS Website details and displayed icons survive a layout reload
+PASS Website icons travel with the EXE's data folder
+PASS Delayed website fetches cannot overwrite a layout restored by undo
+PASS Reopening the launcher repairs existing SharePoint shortcuts even if previously marked fetched
+PASS Version 1 migrates into Home and Main tabs
+PASS Migration preserves positions, base dimensions, scrolling and snapping
+PASS Migration preserves shortcut identities, custom labels and cached website metadata
+PASS Original version 1 save is preserved separately before atomic version 3 saves
+PASS Empty page collections cannot replace a valid layout
+PASS Missing versions and incomplete page data produce recoverable errors
+PASS Group plus remains available outside pencil mode
+PASS Group tab records its own internal scroll offset
+PASS New group tab selects immediately with independent view settings and shared dimensions
+PASS Switching group tabs restores row mode and internal scrolling
+PASS Tab navigation adds no undo entry and undo removes the newly created group tab
+PASS Group tab rename supports undo
+PASS Group tab reorder preserves contents and selection
+PASS Removing a populated group tab and undo restores all shortcuts
+PASS New pages select immediately and keep the previous canvas offsets
+PASS Page switching restores both canvas scroll directions independently
+PASS Page navigation adds no undo entry and undo removes page creation
+PASS Move to transfers across pages and group tabs once and selects the destination
+PASS Move to supports standalone canvas destinations across pages
+PASS Undo restores transfers across hidden pages without duplication
+PASS Page tabs can be renamed and reordered
+PASS Removing a populated page and undo restores hidden group tabs
+PASS Website updates reach hidden pages and group tabs and share one cached icon
+PASS Version 3 persists all pages, selected tabs, offsets and hidden website icons
+PASS Long page and group tab strips overflow horizontally
+PASS The final page and final group tab cannot be removed
+PASS Browser discovery finds named active profiles and excludes snapshots, guest and system profiles
+PASS Chromium importer preserves Unicode names, ordering, empty folders and counts unsupported entries
+PASS Edge and Chrome use the same complete folder parser
+PASS Cancelled bookmark reading leaves no import to commit
+PASS Damaged bookmark sources fail before launcher changes
+PASS Locked browser bookmark files return an actionable read failure
+PASS Firefox fixture includes committed bookmark changes in an active WAL file
+PASS Firefox profile discovery and consistent read-only snapshot include current WAL bookmarks
+PASS Firefox importing leaves the browser bookmark database untouched
+PASS Local Chrome bookmarks parse read-only without changing the source file
+PASS Local Edge bookmarks parse read-only without changing the source file
+PASS Tiny settings gear replaces the lowercase homepage label
+PASS Individual bookmarks import on the current canvas with their browser names preserved
+PASS One undo removes an entire imported folder tree
+PASS Repeated imports create independent copies rather than synchronizing or merging
+PASS Folder import creates a row group with Main, ordered folder tabs and empty collections
+PASS Four nested folder levels import without flattening or duplication
+PASS Nested selection reveals stacked child tab rows with Main navigation at each level
+PASS Nested collections remember view and scrolling settings independently of parent collections
+PASS Additions use the selected nested collection
+PASS Nested creation, rename, removal and undo preserve the complete subtree
+PASS The final child tab may be removed because parent Main remains available
+PASS Nested tab reorder stays within its sibling collection
+PASS Moving a nested shortcut across pages selects the full destination path without duplication
+PASS Undo restores cross-page nested transfers
+PASS Website metadata reaches hidden descendants while preserving imported bookmark names
+PASS Version 3 persists recursive tab contents, selections and website icons
+PASS Version 2 saves upgrade atomically while preserving the original separately
+PASS Importer asks for a profile when multiple bookmark profiles are available
+PASS Bookmark tree selection enables import of an individual link and displays its browser name
+PASS Closing the bookmark chooser does not import or alter the launcher
+PASS Group menu offers other main pages and disables its current page
+PASS Group menu moves TFS Admin to Employee once and switches to the destination
+PASS Moving a group preserves geometry, nested selections, settings, icons and linked files
+PASS Destination canvas reveals the moved group even below the initial viewport
+PASS Moved group membership and destination selection persist after reload
+PASS One undo restores the entire group to its original main page
+PASS Group ellipsis buttons remain visible and usable without pencil editing
+PASS Condensed option appears directly below Show as rows
+PASS Condensed rows halve occupied height and icons while labels remain within their rows
+PASS Condensed icon grids halve tile height and use matching wrap spacing
+PASS Condensed settings persist after reload
+PASS Condensed changes support undo independently per collection
+PASS New nested collections retain their own independent density setting
+PASS Shortcut dragging fades the source and shows a translucent non-interactive ghost
+PASS Ghost snapshot retains the full icon and label regardless of source canvas offsets
+PASS Canvas landing marker uses the exact snapped position and final tile size
+PASS Drag previews do not change shortcut membership or create layout edits
+PASS Ending or cancelling a drag restores opacity and removes both previews
+PASS Releasing a shortcut on the canvas places it exactly at its preview
+PASS Condensed row destinations preview the correct insertion slot and row height
+PASS Cross-group release inserts at the previewed row without duplication
+PASS Same-group landing preview accounts for removing the source before insertion
+PASS Same-group row reordering matches the previewed final index
+PASS Icon-grid destinations show the exact column and condensed tile size
+PASS Row-to-icon transfers land at the previewed icon position
+PASS Copied EXE starts independently and saves beside itself without an installed runtime
+PASS Normal startup and shutdown preserve an existing layout
+Passed 154 checks.
