@@ -142,9 +142,10 @@ public sealed partial class MainWindow : Window
         };
         viewport.ScrollChanged += (_, e) =>
         {
+            if (e.OriginalSource == viewport && !editing && (e.ViewportWidthChange != 0 || e.ViewportHeightChange != 0)) EnsureExtent();
             if (!loaded || restoringScroll || e.OriginalSource != viewport) return;
-            if (e.HorizontalChange > 0 && viewport.HorizontalOffset + viewport.ViewportWidth >= canvas.Width - 100) canvas.Width += 600;
-            if (e.VerticalChange > 0 && viewport.VerticalOffset + viewport.ViewportHeight >= canvas.Height - 100) canvas.Height += 600;
+            if (editing && e.HorizontalChange > 0 && viewport.HorizontalOffset + viewport.ViewportWidth >= canvas.Width - 100) canvas.Width += 600;
+            if (editing && e.VerticalChange > 0 && viewport.VerticalOffset + viewport.ViewportHeight >= canvas.Height - 100) canvas.Height += 600;
             layout.ScrollX = viewport.HorizontalOffset; layout.ScrollY = viewport.VerticalOffset;
             dirty = true; scrollSaveTimer.Stop(); scrollSaveTimer.Start();
         };
@@ -976,8 +977,16 @@ public sealed partial class MainWindow : Window
     {
         double maxX = layout.Items.Select(i => i.X + TileWidth).Concat(layout.Groups.Select(g => g.X + g.Width)).DefaultIfEmpty(0).Max();
         double maxY = layout.Items.Select(i => i.Y + TileHeight).Concat(layout.Groups.Select(g => g.Y + GroupHeight(g))).DefaultIfEmpty(0).Max();
-        canvas.Width = Math.Max(canvas.Width, Math.Max(maxX + 400, layout.ScrollX + Math.Max(1000, viewport.ViewportWidth) + 400));
-        canvas.Height = Math.Max(canvas.Height, Math.Max(maxY + 400, layout.ScrollY + Math.Max(700, viewport.ViewportHeight) + 400));
+        if (!editing)
+        {
+            // Outside edit mode the canvas is only as big as its contents, so an empty page never scrolls.
+            canvas.Width = Math.Max(maxX > 0 ? maxX + 24 : 0, viewport.ViewportWidth);
+            canvas.Height = Math.Max(maxY > 0 ? maxY + 24 : 0, viewport.ViewportHeight);
+            return;
+        }
+        // While editing there is spare room to drag things further out.
+        canvas.Width = Math.Max(Math.Max(canvas.Width, 1600), Math.Max(maxX + 400, layout.ScrollX + Math.Max(1000, viewport.ViewportWidth) + 400));
+        canvas.Height = Math.Max(Math.Max(canvas.Height, 1000), Math.Max(maxY + 400, layout.ScrollY + Math.Max(700, viewport.ViewportHeight) + 400));
     }
     void Persist()
     {

@@ -94,12 +94,14 @@ public static class TabChecks
         window.RemoveGroupTab(group, originalTab); window.Undo(); Pump();
         state = window.CurrentLayout; home = state.ActivePage; group = home.Groups[0]; originalTab = group.Tabs.First(t => t.Name == "Main"); second = group.Tabs.First(t => t.Name == "Applications");
         check(originalTab.Items.Count == 25 && group.Tabs.Count == 2, "Removing a populated group tab and undo restores all shortcuts");
+        window.SetEditingForTest(true); window.UpdateLayout(); Pump(); // Empty pages only have room to scroll while editing.
         window.Viewport.ScrollToHorizontalOffset(270); window.Viewport.ScrollToVerticalOffset(330); window.UpdateLayout(); Pump();
         var work = window.AddPage("Work"); window.UpdateLayout(); Pump();
         check(window.CurrentLayout.ActivePage == work && window.Viewport.HorizontalOffset == 0 && window.Viewport.VerticalOffset == 0 && home.ScrollX == 270 && home.ScrollY == 330, "New pages select immediately and keep the previous canvas offsets");
         window.Viewport.ScrollToHorizontalOffset(110); window.Viewport.ScrollToVerticalOffset(210); window.UpdateLayout(); Pump();
         MainWindow.FindDescendants<Button>(window).First(b => b.Tag as string == home.Id).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); window.UpdateLayout(); Pump();
         check(window.Viewport.HorizontalOffset == 270 && window.Viewport.VerticalOffset == 330 && work.ScrollX == 110 && work.ScrollY == 210, "Page switching restores both canvas scroll directions independently");
+        window.SetEditingForTest(false); window.UpdateLayout(); Pump();
         window.SelectPage(work); window.Undo(); Pump();
         state = window.CurrentLayout; home = state.ActivePage; group = home.Groups[0]; originalTab = group.Tabs.First(t => t.Name == "Main"); second = group.Tabs.First(t => t.Name == "Applications");
         check(state.Pages.Count == 1 && state.AllItems().Count() == 25, "Page navigation adds no undo entry and undo removes page creation");
